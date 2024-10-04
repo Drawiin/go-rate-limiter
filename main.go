@@ -1,6 +1,7 @@
 package main
 
 import (
+	"go-rate-limiter/controller"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -10,8 +11,11 @@ import (
 func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
-	r.Get("/hello", func(w http.ResponseWriter, r *http.Request) {
-		_, _ = w.Write([]byte("Hello World!"))
-	})
-	_ = http.ListenAndServe(":3000", r)
+
+	urlController := controller.NewUrlController(&map[string]string{})
+
+	r.Post("/url", urlController.CreateUrl)
+	r.Get("/{urlId}", urlController.GetUrl)
+
+	http.ListenAndServe(":3000", r)
 }

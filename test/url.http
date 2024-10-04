@@ -1,3 +1,11 @@
-### Get hellow horld
-GET {{host}}/hello
+### Save a new URL
+POST {{host}}/url
+Content-Type: application/json
 
+{
+    "url": "https://www.google.com"
+}
+
+
+### Get URL by ID
+GET {{host}}/ac6bb669
