@@ -11,14 +11,16 @@ import (
 )
 
 type UrlController struct {
-	db *map[string]string
+	db   *map[string]string
+	host string
+	port string
 }
 
-func NewUrlController(db *map[string]string) UrlController {
-	return UrlController{db: db}
+func NewUrlController(db *map[string]string, host, port string) UrlController {
+	return UrlController{db: db, host: host, port: port}
 }
 
-func (c UrlController) CreateUrl(w http.ResponseWriter, r *http.Request)  {
+func (c UrlController) CreateUrl(w http.ResponseWriter, r *http.Request) {
 	var url dto.CreateUrlRequestDto
 	err := json.NewDecoder(r.Body).Decode(&url)
 	if err != nil {
@@ -29,19 +31,18 @@ func (c UrlController) CreateUrl(w http.ResponseWriter, r *http.Request)  {
 	hash := sha256.New()
 	hash.Write([]byte(url.Url))
 	hashBytes := hash.Sum(nil)
-	hashString := hex.EncodeToString(hashBytes)
-	trucatedHash := hashString[:8]
+	truncatedHash := hex.EncodeToString(hashBytes)[:8]
 
-	(*c.db)[trucatedHash] = url.Url
-	
+	(*c.db)[truncatedHash] = url.Url
+
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(dto.CreateUrlResponseDto{ShortUrl: fmt.Sprintf("http://localhost:3000/%s", trucatedHash)})
+	err = json.NewEncoder(w).Encode(dto.CreateUrlResponseDto{ShortUrl: fmt.Sprintf("%s:%s/%s", c.host, c.port, truncatedHash)})
 	if err != nil {
-		return 
+		return
 	}
 }
 
-func (c UrlController) GetUrl(w http.ResponseWriter, r *http.Request)  {
+func (c UrlController) GetUrl(w http.ResponseWriter, r *http.Request) {
 	urlId := chi.URLParam(r, "urlId")
 	url, ok := (*c.db)[urlId]
 	if !ok {

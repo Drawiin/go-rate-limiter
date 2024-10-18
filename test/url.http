@@ -1,6 +1,7 @@
 ### Save a new URL
 POST {{host}}/url
 Content-Type: application/json
+API_KEY: abc123
 
 {
     "url": "https://www.google.com"
