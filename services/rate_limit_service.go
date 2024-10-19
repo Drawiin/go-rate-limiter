@@ -3,11 +3,13 @@ package services
 import (
 	"fmt"
 	"go-rate-limiter/internal/infra"
+	"sync"
 )
 
 type RateLimitService struct {
 	storage infra.KeyValueStore
 	config  RateLimitConfig
+	mu    sync.Map
 }
 
 type RateLimitConfig struct {
@@ -20,6 +22,7 @@ func NewRateLimitService(storage infra.KeyValueStore, config RateLimitConfig) *R
 	return &RateLimitService{
 		storage: storage,
 		config:  config,
+		mu:   sync.Map{},
 	}
 }
 
@@ -27,6 +30,14 @@ func (s *RateLimitService) ShouldThrottle(ip, token string, time int64) bool {
 	key := s.getKey(ip, token)
 	limit := s.getLimit(ip, token)
 	currentWindow := time / int64(s.config.TimeWindowInSeconds)
+
+	// Get or create a mutex for the key
+	muInterface, _ := s.mu.LoadOrStore(key, &sync.Mutex{})
+	mu := muInterface.(*sync.Mutex)
+
+	mu.Lock()
+	defer mu.Unlock()
+
 	timeWindow, requestCount := s.storage.Get(key)
 	fmt.Printf("Key: %s, Limit: %d, Current Window: %d, Time Window: %d, Request Count: %d\n", key, limit, currentWindow, timeWindow, requestCount)
 	if timeWindow == 0 {

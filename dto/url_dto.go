@@ -7,3 +7,6 @@ type CreateUrlRequestDto struct {
 type CreateUrlResponseDto struct {
 	ShortUrl string `json:"shortUrl"`
 }
+type UnwrapUrlResponseDto struct {
+	OriginalUlr string `json:"originalUrl"`
+}

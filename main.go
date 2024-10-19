@@ -29,6 +29,7 @@ func main() {
 
 	r.Post("/url", urlController.CreateUrl)
 	r.Get("/{urlId}", urlController.GetUrl)
+	r.Get("/{urlId}/unwrap", urlController.GetUrlUnwrapped)
 
 	http.ListenAndServe(fmt.Sprintf(":%s", appConfig.WebServerPort), r)
 }

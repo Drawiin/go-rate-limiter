@@ -10,3 +10,7 @@ API_KEY: abc123
 
 ### Get URL by ID
 GET {{host}}/ac6bb669
+
+### Get URL unwraped
+GET {{host}}/ac6bb669/unwrap
+

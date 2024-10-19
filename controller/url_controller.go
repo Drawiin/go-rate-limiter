@@ -52,3 +52,18 @@ func (c UrlController) GetUrl(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, url, http.StatusPermanentRedirect)
 }
+
+func (c UrlController) GetUrlUnwrapped(w http.ResponseWriter, r *http.Request) {
+	urlId := chi.URLParam(r, "urlId")
+	url, ok := (*c.db)[urlId]
+	if !ok {
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	err := json.NewEncoder(w).Encode(dto.UnwrapUrlResponseDto{OriginalUlr: url})
+	if err != nil {
+		return
+	}
+}
